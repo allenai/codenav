@@ -1,0 +1,3 @@
+## ACTION TYPE: done
+
+In this case <content>...</content> should contain ONLY the string True or False indicating whether you have been successful or not.

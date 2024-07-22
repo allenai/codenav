@@ -1,0 +1,21 @@
+## ACTION TYPE: search
+
+In this case <content>...</content> should include one elasticsearch "query string" per line, these queries will be used to search an elasticsearch index of the codebase. Elasticsearch's reserved characters are {RESERVED_CHARACTERS} these should be escaped with a \ if you are trying to search for them explicitly (< and > can never be escaped). The index has fields
+
+- file_path # The path of the file relative the codebase's root (not absolute)
+- type # The of the text block (FUNCTION, CLASS, ASSIGNMENT, IMPORT, or DOCUMENTATION)
+- lines # The line numbers of the block in the file
+- text # The code as a string
+
+You may search with ANY valid query string. Example queries:
+
+text: (classification OR "detection model") # Finds blocks containing "classification" or "detection model". The quotes ensure "detection model" is treated as a single phrase.
+
+(text: classification) AND NOT (text: linear) # Finds blocks containing "classification" but not containing "linear"
+
+((type: FUNCTION) OR (type: CLASS)) AND (file_path: *rel\/path\/to\/code.py) # Finds all functions or classes in the file at *rel/path/to/code.py
+
+1. Rather than searching for `def function_name` or `class ClassName` you should use prefer to use the `type` field (i.e. search for `(type: FUNCTION) AND (text: function_name)` or `(type: CLASS) AND (text: ClassName)`).
+2. When searching for a file_path, forward slashes MUST BE ESCAPED (ie all / should be replaced with \/).
+3. If you are searching with a (file_path: rel\/path\/to\/code.py) and not retrieving relevant results, try broadening the search using a *, ie (file_path: *path\/to\/code.py)
+3. Start with simple queries and only add extra constraints if the returned results are too broad.

@@ -1,0 +1,3 @@
+## ACTION TYPE: code
+
+In this case <content>...</content> should include your Python code to execute. Do not enclose this code in ```.

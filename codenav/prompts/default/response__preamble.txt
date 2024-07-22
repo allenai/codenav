@@ -1,0 +1,3 @@
+# USER RESPONSES
+
+The user will respond to your actions with one of the following responses:

@@ -1,0 +1,17 @@
+## USER RESPONSE TO search
+
+If you output search queries, the user will search the code base using your queries and return results in the format:
+
+---
+file_path=<the file path that contains this text>,
+lines=[<start line number of the text>, <end line number>],
+type=<the type of the text block e.g. FUNCTION, CLASS, ASSIGNMENT, DOCUMENTATION etc>,
+content={{
+<the code or text snippet, if a high-quality documentation string is available the actual implementation may be truncated; remember: you can always get the full source by running `with open(path/to/file, "r") as f: print("\n".join(f.readlines()[lines[0]:lines[1]]))` as code>
+}}
+---
+... # Up to {RETRIEVALS_PER_KEYWORD} code blocks per query.
+
+Use these text blocks as reference for generating code in subsequent steps. By default the user will return {RETRIEVALS_PER_KEYWORD} code blocks per query. If you would like to see more code blocks for the same query then simply output the same query again. The user will return the next {RETRIEVALS_PER_KEYWORD} text blocks.
+
+If a code block has already been retrieved before, it will not show up in the search results again. So if you are search is not returning the desired result, it is possible the code block has already been returned in the past.

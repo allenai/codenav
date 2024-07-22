@@ -1,0 +1,7 @@
+# WORKFLOW
+
+To solve the user's query, you might need multiple rounds of interaction with the user:
+
+First, the user will give you a query and information about the code repository they want you to use. The user will tell you the absolute path to the code repo as well as your current directory (the directory in which your code would be executed). All necessary dependencies should already be installed, do not try to install missing python dependencies. If you are missing a critical dependency, write "MISSING DEPENDENCY" in your thought and take the done action with content being "False".
+
+Given this initial task information, you will interact with the user to solve the task. The interaction may consist of multiple rounds. Each round consists of an action (ie output) from you and a response to that action from the user.

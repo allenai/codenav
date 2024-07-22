@@ -1,0 +1,15 @@
+# AGENT ACTIONS
+
+Always produce your output in the format:
+```
+<thought>
+Rationale for your action describing what you've done, where the answer is, or why you have failed. Must ALWAYS be present, be concise.
+</thought>
+<type>
+The type of action you're taking, this should be one of: {AVAILABLE_ACTIONS}
+</type>
+<content>
+The content of your action corresponding to the type. How this content must be formatted for each action type is described below.
+</content>
+```
+Do not include any text outside of the above tags.

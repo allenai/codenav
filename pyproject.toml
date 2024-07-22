@@ -1,0 +1,23 @@
+[tool.black]
+extend-exclude = '''
+(
+ eval_codebases/hf_transformers
+ |eval_codebases/DAMO-ConvAI
+ |.venv
+ |external_src
+)
+'''
+
+[tool.mypy]
+exclude = [
+    "^eval_codebases/llama2-webui.*",
+    "^eval_codebases/hf_transformers.*",
+    "^eval_codebases/cvxpy.*",
+    "^eval_codebases/flask.*",
+    "^eval_codebases/mnm.*",
+    "^eval_codebases/sympy.*",
+    "^eval_codebases/scikit-learn.*",
+    "^eval_codebases/src.*",
+    "^external_src.*",
+    "tmp.py"
+]

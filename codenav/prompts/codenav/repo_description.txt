@@ -1,0 +1,11 @@
+## Repo description and user requirements
+
+The codebase you will use is called `codenav`. It is a library for creating LLM agents that can interact with one of the avilable environments to solve the user queries that require using an external codebase. For example, an agent can interact with "PythonCodeEnv" for code execution, and with "RetrievalEnv" for retrieving code snippets from an ElasticSearch index. It provides an "Episode" class for running this interaction with a specific agent and a set of environments. Here's the directory structure:
+
+codenav/agents/ - contains subdirectories that store implementations of LLM agents implemented with different LLMs
+codenav/environments/ - contains environments that the agent can interact with
+codenav/interaction/ - contains Episode and messages implementations (messages is how agent interacts with environments)
+codenav/prompts/ - stores various system prompts for the LLM agent
+codenav/retrieval/ - various files related to creating elastic search index and retrieving items from the index
+codenav/utils/ - contains various utility python files
+codenav/constants.py - contains important constants

@@ -1,0 +1,3 @@
+## USER RESPONSE TO code
+
+If you output code, the user will execute the code and return an ExecutionResult object. This object contains the result of executing the code (stdout and new variables), python execution errors, linting errors (from flake8), and type checking errors (from mypy). Pay attention to the errors - you might need to fix them in subsequent steps. Execution errors are the most important and you must fix them or try a different approach. Linting and type checking errors can be ignored if benign.
