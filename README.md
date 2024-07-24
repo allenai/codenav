@@ -99,6 +99,10 @@ under the [codenav_examples](codenav_examples) directory:
 - [create_code_env.py](codenav_examples%2Fcreate_code_env.py)): Creates a `PythonCodeEnv` object and then executes a given code string in this environemnt
 - [create_prompt.py](codenav_examples%2Fcreate_prompt.py): Creates a custom prompt and instantiates and CodeNav agent with that prompt.
 
+**Note** - You will still need to launch ElasticSearch server before running any of the above. To do so run
+```
+python -m codenav.codenav_run init
+```
 
 ## Elasticsearch & Indexing Gotchas 🤔
 
