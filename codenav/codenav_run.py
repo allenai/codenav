@@ -188,7 +188,7 @@ def main():
     )
     parser.add_argument(
         "--force_reindex",
-        store_true=True,
+        action="store_true",
         help="Will delete the existing index (if any) and refresh it.",
     )
 

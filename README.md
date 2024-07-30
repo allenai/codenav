@@ -35,7 +35,7 @@ codenav query \
 ```
 You can find other command line options by running `codenav --help`. For example, you might run something like
 ```bash
-codenav run \
+codenav query \
   --code_dir /PATH/TO/THIS/REPO/codenav \
   --playground /PATH/TO/THIS/REPO/playground \
   --query "Write a google-style documentation string for the DoneEnv class and save it to DoneEnv.py"
