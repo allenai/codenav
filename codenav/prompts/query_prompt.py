@@ -27,7 +27,7 @@ def create_user_query_message(
     added_paths: Sequence[str],
 ):
     return UserQueryToAgent(
-        message=f"USER QUERY: {user_query_str}"
+        message=f"USER QUERY:\n\n{user_query_str}\n\nPATHS AND IMPORT INSTRUCTIONS:"
         + (f"\n" f"\n{PATHS}" f"\n{IMPORT_INSTRUCTIONS}" f"\n{ADDED_TO_PATH}").format(
             CODE_DIR=code_dir, WORKING_DIR=working_dir, ADDED_PATH=list(added_paths)
         ),

@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Any, Dict, Optional, Union, Literal
+from typing import Any, Dict, Optional, Union
 
 import attrs
 
@@ -52,9 +51,3 @@ class EvalSpec(ABC):
         logging_kwargs: Optional[Str2AnyDict] = None,
     ) -> Any:
         pass
-
-
-@dataclass
-class EvalConfig:
-    eval_set: Literal["gt", "pred"]
-    run_wandb: bool
