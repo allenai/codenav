@@ -11,13 +11,10 @@ from codenav.retrieval.elasticsearch.elasticsearch_constants import RESERVED_CHA
 from codenav.retrieval.elasticsearch.index_codebase import DEFAULT_ES_HOST
 from codenav.utils.eval_types import EvalInput, EvalSpec, Str2AnyDict
 from codenav.utils.evaluator import CodenavEvaluator
-from codenav.utils.prompt_utils import PromptBuilder
+from codenav.utils.prompt_utils import PROMPTS_DIR, PromptBuilder
 
 
-# EvalSpec defines the components for running an evaluation
-# EvalSpec is then used by the CodenavEvaluator to run CodeNav on inputs using 1 or more processes
-# EvalSpec requires defining 3 methods: build_episode, run_interaction, log_output
-class CodenavEvalSpec(EvalSpec):
+class DefaultEvalSpec(EvalSpec):
     def __init__(
         self,
         episode_kwargs: Str2AnyDict,
@@ -32,6 +29,7 @@ class CodenavEvalSpec(EvalSpec):
         episode_kwargs: Optional[Str2AnyDict] = None,
     ) -> Episode:
         assert episode_kwargs is not None
+
         prompt_builder = PromptBuilder(
             repo_description=episode_kwargs["repo_description"]
         )
@@ -96,63 +94,53 @@ class CodenavEvalSpec(EvalSpec):
         return outfile
 
 
-def run_parallel_evaluation(
-    eval_inputs: List[EvalInput],
-    episode_kwargs: Str2AnyDict,
-    interaction_kwargs: Str2AnyDict,
-    logging_kwargs: Str2AnyDict,
-    num_processes: int = 2,
+def run_codenav_on_query(
+    exp_name: str,
+    out_dir: str,
+    query: str,
+    code_dir: str,
+    index_name: str,
+    working_dir: str = os.path.join(
+        os.path.dirname(ABS_PATH_OF_CODENAV_DIR), "playground"
+    ),
+    sys_paths: Optional[List[str]] = None,
+    repo_description_path: Optional[str] = None,
+    es_host: str = DEFAULT_ES_HOST,
+    max_steps: int = 20,
 ):
 
-    # create an instance of the CodenavEvaluator using the eval spec
-    evaluator = CodenavEvaluator(
-        eval_spec=CodenavEvalSpec(
-            episode_kwargs=episode_kwargs,
-            interaction_kwargs=interaction_kwargs,
-            logging_kwargs=logging_kwargs,
-        )
-    )
+    prompt_dirs = [PROMPTS_DIR]
+    repo_description = "default/repo_description.txt"
+    if repo_description_path is not None:
+        prompt_dir, repo_description = os.path.split(repo_description_path)
+        prompt_dirs.append(prompt_dir)
 
-    # Get outputs from the output queue
-    num_inputs = len(eval_inputs)
-    for i, output in enumerate(evaluator.evaluate(eval_inputs, n_procs=2)):
-        print(
-            f"Evaluated {i+1}/{num_inputs} | Input uid: {eval_inputs[i].uid} | Output saved to ",
-            output,
-        )
-
-
-if __name__ == "__main__":
     episode_kwargs = dict(
         allowed_actions=["done", "code", "search"],
-        repo_description="codenav/repo_description.txt",
+        repo_description=repo_description,
         retrievals_per_keyword=3,
         prototypes_per_keyword=7,
         llm=DEFAULT_OPENAI_MODEL,
-        code_dir=ABS_PATH_OF_CODENAV_DIR,
-        sys_paths=[os.path.dirname(ABS_PATH_OF_CODENAV_DIR)],
+        code_dir=code_dir,
+        sys_paths=[] if sys_paths is None else sys_paths,
         working_dir=os.path.join(
             os.path.dirname(ABS_PATH_OF_CODENAV_DIR), "playground"
         ),
-        index_name="codenav",
-        host=DEFAULT_ES_HOST,
+        index_name=index_name,
+        host=es_host,
+        prompt_dirs=prompt_dirs,
     )
-    interaction_kwargs = dict(max_steps=10, verbose=True)
-    logging_kwargs = dict(out_dir="/Users/tanmayg/Code/codenav_test/outputs")
+    interaction_kwargs = dict(max_steps=max_steps, verbose=True)
+    logging_kwargs = dict(out_dir=out_dir)
 
-    # Define the inputs to evaluate using EvalInput
-    # Each EvalInput instance consists of a unique id (uid), a query, and optionally any metadata
-    eval_inputs = [
-        EvalInput(uid=1, query="Find the DoneEnv and instantiate it"),
-        EvalInput(
-            uid=2,
-            query="Build the prompt template using PromptBuilder and print all the placeholders",
+    # Run CodeNav on the query
+    outfile = CodenavEvaluator.evaluate_input(
+        eval_input=EvalInput(uid=exp_name, query=query),
+        eval_spec=DefaultEvalSpec(
+            episode_kwargs=episode_kwargs,
+            interaction_kwargs=interaction_kwargs,
+            logging_kwargs=logging_kwargs,
         ),
-    ]
-    run_parallel_evaluation(
-        eval_inputs,
-        episode_kwargs,
-        interaction_kwargs,
-        logging_kwargs,
-        num_processes=2,
     )
+
+    print("Output saved to ", outfile)
