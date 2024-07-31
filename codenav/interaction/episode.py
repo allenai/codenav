@@ -5,8 +5,8 @@ import pandas as pd
 import codenav.interaction.messages as msg
 from codenav.agents.agent import CodeNavAgent
 from codenav.agents.interaction_formatters import (
-    InteractionFormatter,
     DefaultInteractionFormatter,
+    InteractionFormatter,
 )
 from codenav.environments.abstractions import CodeNavEnv
 from codenav.environments.code_env import PythonCodeEnv
@@ -183,62 +183,65 @@ class Episode:
         )
 
     def to_notebook(self, cur_dir: str) -> str:
-        import nbformat as nbf
+        import nbformat
+        from nbformat import v4 as nbf
 
-        nb = nbf.v4.new_notebook()
-
-        nb.cells.append(nbf.v4.new_markdown_cell(f"# INITIALIZATION"))
-        nb.cells.append(
-            nbf.v4.new_code_cell(
-                f"import os\n"
-                f"import sys\n\n"
-                f"sys.path.extend({self.code_env.sys_paths})\n"
-                f"os.chdir('{cur_dir}')\n"
+        nb = nbf.new_notebook()
+        for i, row in self.tabulate_interactions().iterrows():
+            thought = row["action/thought"]
+            action_type = row["action/type"]
+            content = row["action/content"]
+            response = row["response"]
+            thought, action_type, content, response = (
+                x if x is not None else "None"
+                for x in (thought, action_type, content, response)
             )
-        )
 
-        nb.cells.append(
-            nbf.v4.new_markdown_cell(f"# SYSTEM PROMPT\n{self.agent.system_prompt_str}")
-        )
-        nb.cells.append(
-            nbf.v4.new_markdown_cell(
-                f"# USER PROMPT\n{self.agent.user_query_prompt_str}"
-            )
-        )
-
-        for i, interaction in enumerate(self.agent.episode_state.interactions):
-            record = Episode.get_record(interaction, self.agent.interaction_formatter)
-
-            nb.cells.append(nbf.v4.new_markdown_cell(f"# Step {i}"))
-
-            thought_cell = nbf.v4.new_markdown_cell(
-                f"## Thought {i}\n{record['action/thought']}"
-            )
-            nb.cells.append(thought_cell)
-
-            if record["action/type"] == "search":
-                search_cell = nbf.v4.new_markdown_cell(
-                    f"## Search {i}\n{str(record['action/content'])}"
+            if i == 0:
+                nb.cells.append(
+                    nbf.new_markdown_cell(
+                        "\n\n".join(
+                            [
+                                "# Instruction to CodeNav",
+                                self.agent.user_query_prompt_str,
+                                "# Interactions",
+                            ]
+                        )
+                    )
                 )
-                nb.cells.append(search_cell)
+                continue
 
-            elif record["action/type"] == "code":
-                nb.cells.append(nbf.v4.new_markdown_cell(f"## Code {i}"))
-                code_cell = nbf.v4.new_code_cell(record["action/content"])
-                nb.cells.append(code_cell)
-
-            elif record["action/type"] == "done":
-                search_cell = nbf.v4.new_markdown_cell(
-                    f"## DONE {i}\nAgent believes it was successful? {str(record['action/content'])}"
+            nb.cells.append(
+                nbf.new_markdown_cell(
+                    "\n\n".join(
+                        [
+                            f"## Step {i}: {action_type}",
+                            thought,
+                        ]
+                    )
                 )
-                nb.cells.append(search_cell)
-
-            response_cell = nbf.v4.new_markdown_cell(
-                f"## Response {i}\n```\n{record['response']}\n```"
             )
-            nb.cells.append(response_cell)
 
-        return nbf.writes(nb)
+            if action_type == "done":
+                output = nbf.new_output(
+                    output_type="stream",
+                    text="Ending episode since the agent has issued a 'done' action.",
+                )
+            elif action_type == "code":
+                output = nbf.new_output(
+                    output_type="execute_result",
+                    data={"text/plain": response},
+                )
+            else:
+                output = nbf.new_output(
+                    output_type="stream",
+                    text=response,
+                )
+
+            nb.cells.append(nbf.new_code_cell(content, outputs=[output]))
+            nb.cells.append(nbf.new_markdown_cell("---"))
+
+        return nbformat.writes(nb)
 
     @staticmethod
     def format_interaction(

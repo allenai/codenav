@@ -4,11 +4,12 @@ import re
 import subprocess
 import time
 from argparse import ArgumentParser
-from typing import Optional, Dict, Any, Sequence
+from typing import Any, Dict, Optional, Sequence
 
 import attrs
 from elasticsearch import Elasticsearch
 
+from codenav.default_eval_spec import run_codenav_on_query
 from codenav.interaction.episode import Episode
 from codenav.retrieval.elasticsearch.index_codebase import (
     DEFAULT_ES_HOST,
@@ -17,12 +18,12 @@ from codenav.retrieval.elasticsearch.index_codebase import (
     build_index,
 )
 from codenav.retrieval.elasticsearch.install_elasticsearch import (
-    is_es_installed,
-    install_elasticsearch,
     ES_PATH,
     KIBANA_PATH,
+    install_elasticsearch,
+    is_es_installed,
 )
-from codenav.utils.eval_utils import eval_manager, Task
+from codenav.utils.eval_utils import Task, eval_manager
 
 
 def is_port_in_use(port: int) -> bool:
@@ -232,16 +233,18 @@ def main():
             raise ValueError("No playground_dir provided")
 
         if args.code_dir is None:
-            path_to_module = os.path.abspath(
-                os.path.dirname(importlib.import_module(args.module).__file__)
-            )
-            args.code_dir = os.path.dirname(path_to_module)
-
-            force_subdir = os.path.basename(path_to_module)
+            # path_to_module = os.path.abspath(
+            #     os.path.dirname(importlib.import_module(args.module).__file__)
+            # )
+            # args.code_dir = os.path.dirname(path_to_module)
+            args.code_dir = os.path.dirname(args.module)
+            sys_path = args.code_dir
+            force_subdir = os.path.basename(args.module)
             code_name = force_subdir
         else:
             force_subdir = None
             args.code_dir = os.path.abspath(args.code_dir)
+            sys_path = args.code_dir
             code_name = os.path.basename(args.code_dir)
 
         args.playground_dir = os.path.abspath(args.playground_dir)
@@ -257,27 +260,15 @@ def main():
                 force_subdir=force_subdir,
             )
 
-        conf = EvalManagerConfig(
+        run_codenav_on_query(
             exp_name=re.sub("[^A-Za-z0–9 ]", "", args.q).replace(" ", "_")[:30],
-            task_names=[code_name],
-            retrievals_per_keyword=3,
-            max_steps=args.max_steps,
-            nprocesses=1,
+            out_dir=args.playground_dir,
+            query=args.q,
+            code_dir=args.code_dir if args.module is None else args.module,
+            sys_paths=[sys_path],
             index_name=code_name,
-            host=DEFAULT_ES_HOST,
-        )
-        eval_manager(
-            exp_prefix=code_name,
-            task_str_to_task_class={
-                code_name: QueryCodeNavTask(args.q),
-            },
-            code_dir=args.code_dir,
             working_dir=args.playground_dir,
-            args=conf,
-            print_steps=True,
-            wandb_online=False,
-            project="codenav",
-            wandb_dir=args.wandb_dir,
+            max_steps=args.max_steps,
         )
 
     else:
