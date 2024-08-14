@@ -113,6 +113,12 @@ def run_codenav_on_query(
     repo_description = "default/repo_description.txt"
     if repo_description_path is not None:
         prompt_dir, repo_description = os.path.split(repo_description_path)
+        conflict_path = os.path.join(PROMPTS_DIR, repo_description)
+        if os.path.exists(conflict_path):
+            raise ValueError(
+                f"Prompt conflict detected: {repo_description} already exists in {PROMPTS_DIR}. "
+                f"Please rename the {repo_description_path} file to resolve this conflict."
+            )
         prompt_dirs.append(prompt_dir)
 
     episode_kwargs = dict(
