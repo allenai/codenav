@@ -123,9 +123,7 @@ def run_codenav_on_query(
         llm=DEFAULT_OPENAI_MODEL,
         code_dir=code_dir,
         sys_paths=[] if sys_paths is None else sys_paths,
-        working_dir=os.path.join(
-            os.path.dirname(ABS_PATH_OF_CODENAV_DIR), "playground"
-        ),
+        working_dir=working_dir,
         index_name=index_name,
         host=es_host,
         prompt_dirs=prompt_dirs,
