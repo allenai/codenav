@@ -23,7 +23,6 @@ from codenav.retrieval.elasticsearch.install_elasticsearch import (
     install_elasticsearch,
     is_es_installed,
 )
-from codenav.utils.eval_utils import Task, eval_manager
 
 
 def is_port_in_use(port: int) -> bool:
