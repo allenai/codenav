@@ -106,33 +106,6 @@ def run_init():
     )
 
 
-class QueryCodeNavTask(Task):
-    def __init__(self, query: str):
-        self.query = query
-
-    @property
-    def inputs(self) -> Dict[str, Any]:
-        return {}
-
-    @property
-    def task_template(self) -> str:
-        return self.query
-
-    def log_io(self, logger, episode: Optional[Episode] = None):
-        pass
-
-
-@attrs.define
-class EvalManagerConfig:
-    exp_name: str
-    task_names: Sequence[str]
-    retrievals_per_keyword: int
-    max_steps: int
-    nprocesses: int
-    index_name: str
-    host: str
-
-
 def main():
     parser = ArgumentParser()
     parser.add_argument(
