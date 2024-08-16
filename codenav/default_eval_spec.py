@@ -60,6 +60,7 @@ class DefaultEvalSpec(EvalSpec):
                     ),
                     expansions_per_query=episode_kwargs["retrievals_per_keyword"],
                     prototypes_per_query=episode_kwargs["prototypes_per_keyword"],
+                    summarize_code=False,
                 ),
                 done=DoneEnv(),
             ),
