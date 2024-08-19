@@ -165,6 +165,20 @@ def main():
         help="Will delete the existing index (if any) and refresh it.",
     )
 
+    parser.add_argument(
+        "--force_subdir",
+        type=str,
+        default=None,
+        help="Index only a subdirectory of the code_dir",
+    )
+
+    parser.add_argument(
+        "--repo_description_path",
+        type=str,
+        default=None,
+        help="Path to a file containing a description of the codebase.",
+    )
+
     args = parser.parse_args()
 
     if args.wandb_dir.strip().lower() == "none":
@@ -205,16 +219,15 @@ def main():
             raise ValueError("No playground_dir provided")
 
         if args.code_dir is None:
-            # path_to_module = os.path.abspath(
-            #     os.path.dirname(importlib.import_module(args.module).__file__)
-            # )
-            # args.code_dir = os.path.dirname(path_to_module)
-            args.code_dir = os.path.dirname(args.module)
-            sys_path = args.code_dir
-            force_subdir = os.path.basename(args.module)
-            code_name = force_subdir
+            path_to_module = os.path.abspath(
+                os.path.dirname(importlib.import_module(args.module).__file__)
+            )
+            args.code_dir = os.path.dirname(path_to_module)
+            code_name = os.path.basename(path_to_module)
+            force_subdir = code_name
+            sys_path = os.path.dirname(path_to_module)
         else:
-            force_subdir = None
+            force_subdir = args.force_subdir
             args.code_dir = os.path.abspath(args.code_dir)
             sys_path = args.code_dir
             code_name = os.path.basename(args.code_dir)
@@ -241,6 +254,7 @@ def main():
             index_name=code_name,
             working_dir=args.playground_dir,
             max_steps=args.max_steps,
+            repo_description_path=args.repo_description_path,
         )
 
     else:

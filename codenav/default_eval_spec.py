@@ -31,7 +31,8 @@ class DefaultEvalSpec(EvalSpec):
         assert episode_kwargs is not None
 
         prompt_builder = PromptBuilder(
-            repo_description=episode_kwargs["repo_description"]
+            prompt_dirs=episode_kwargs["prompt_dirs"],
+            repo_description=episode_kwargs["repo_description"],
         )
         prompt = prompt_builder.build(
             dict(
@@ -120,6 +121,7 @@ def run_codenav_on_query(
                 f"Prompt conflict detected: {repo_description} already exists in {PROMPTS_DIR}. "
                 f"Please rename the {repo_description_path} file to resolve this conflict."
             )
+        # append to front
         prompt_dirs.append(prompt_dir)
 
     episode_kwargs = dict(
