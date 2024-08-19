@@ -172,3 +172,4 @@ tmp.py
 rsync-to-*
 results
 *_out
+.vscode

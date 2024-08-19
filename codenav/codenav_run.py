@@ -4,11 +4,12 @@ import re
 import subprocess
 import time
 from argparse import ArgumentParser
-from typing import Optional, Dict, Any, Sequence
+from typing import Any, Dict, Optional, Sequence
 
 import attrs
 from elasticsearch import Elasticsearch
 
+from codenav.default_eval_spec import run_codenav_on_query
 from codenav.interaction.episode import Episode
 from codenav.retrieval.elasticsearch.index_codebase import (
     DEFAULT_ES_HOST,
@@ -17,12 +18,11 @@ from codenav.retrieval.elasticsearch.index_codebase import (
     build_index,
 )
 from codenav.retrieval.elasticsearch.install_elasticsearch import (
-    is_es_installed,
-    install_elasticsearch,
     ES_PATH,
     KIBANA_PATH,
+    install_elasticsearch,
+    is_es_installed,
 )
-from codenav.utils.eval_utils import eval_manager, Task
 
 
 def is_port_in_use(port: int) -> bool:
@@ -106,33 +106,6 @@ def run_init():
     )
 
 
-class QueryCodeNavTask(Task):
-    def __init__(self, query: str):
-        self.query = query
-
-    @property
-    def inputs(self) -> Dict[str, Any]:
-        return {}
-
-    @property
-    def task_template(self) -> str:
-        return self.query
-
-    def log_io(self, logger, episode: Optional[Episode] = None):
-        pass
-
-
-@attrs.define
-class EvalManagerConfig:
-    exp_name: str
-    task_names: Sequence[str]
-    retrievals_per_keyword: int
-    max_steps: int
-    nprocesses: int
-    index_name: str
-    host: str
-
-
 def main():
     parser = ArgumentParser()
     parser.add_argument(
@@ -180,22 +153,26 @@ def main():
         help="A path to a file containing your query (useful for long/detailed queries that are hard to enter on the commandline).",
     )
     parser.add_argument(
-        "--wandb_dir",
-        type=str,
-        default=os.getcwd(),
-        help="Directory into which to save logs. If 'None', logs are written to a temporary"
-        " directory that will be deleted after the run.",
-    )
-    parser.add_argument(
         "--force_reindex",
         action="store_true",
         help="Will delete the existing index (if any) and refresh it.",
     )
 
-    args = parser.parse_args()
+    parser.add_argument(
+        "--force_subdir",
+        type=str,
+        default=None,
+        help="Index only a subdirectory of the code_dir",
+    )
 
-    if args.wandb_dir.strip().lower() == "none":
-        args.wandb_dir = None
+    parser.add_argument(
+        "--repo_description_path",
+        type=str,
+        default=None,
+        help="Path to a file containing a description of the codebase.",
+    )
+
+    args = parser.parse_args()
 
     if args.command == "init":
         run_init()
@@ -236,12 +213,13 @@ def main():
                 os.path.dirname(importlib.import_module(args.module).__file__)
             )
             args.code_dir = os.path.dirname(path_to_module)
-
-            force_subdir = os.path.basename(path_to_module)
-            code_name = force_subdir
+            code_name = os.path.basename(path_to_module)
+            force_subdir = code_name
+            sys_path = os.path.dirname(path_to_module)
         else:
-            force_subdir = None
+            force_subdir = args.force_subdir
             args.code_dir = os.path.abspath(args.code_dir)
+            sys_path = args.code_dir
             code_name = os.path.basename(args.code_dir)
 
         args.playground_dir = os.path.abspath(args.playground_dir)
@@ -257,27 +235,16 @@ def main():
                 force_subdir=force_subdir,
             )
 
-        conf = EvalManagerConfig(
+        run_codenav_on_query(
             exp_name=re.sub("[^A-Za-z0–9 ]", "", args.q).replace(" ", "_")[:30],
-            task_names=[code_name],
-            retrievals_per_keyword=3,
-            max_steps=args.max_steps,
-            nprocesses=1,
+            out_dir=args.playground_dir,
+            query=args.q,
+            code_dir=args.code_dir if args.module is None else args.module,
+            sys_paths=[sys_path],
             index_name=code_name,
-            host=DEFAULT_ES_HOST,
-        )
-        eval_manager(
-            exp_prefix=code_name,
-            task_str_to_task_class={
-                code_name: QueryCodeNavTask(args.q),
-            },
-            code_dir=args.code_dir,
             working_dir=args.playground_dir,
-            args=conf,
-            print_steps=True,
-            wandb_online=False,
-            project="codenav",
-            wandb_dir=args.wandb_dir,
+            max_steps=args.max_steps,
+            repo_description_path=args.repo_description_path,
         )
 
     else:
