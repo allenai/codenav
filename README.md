@@ -89,6 +89,20 @@ Note: the `codenav` command line tool is simply an alias for running the [codena
 you can replace `codenav ...` with `python -m codenav.codenav_run ...`
 or `python /path/to/codenav/codenav_run.py ...` and obtain the same results.
 
+Here's a more detailed description of the arguments you can pass to `codenav query` or `python -m codenav.codenav_run query`:
+| Argument | Type | Description |
+| --- | --- | --- |
+| `--code_dir` | str | The path to the codebase you want CodeNav to use. By default all files in this directory will get indexed with relative file paths. For instance, if you set `--code_dir /Users/tanmay/codebase` which contains a `computer_vision/tool.py` file then this file will be indexed with relative path `computer_vision/tools.py` |
+| `--force_subdir` | str | If you wish to only index a subdirectory within the code_dir then set this to the name of the sub directory |
+| `--module` | str | If you have a module installed e.g. via `pip install transformers` and you want CodeNav to use this module, you can simply set `--module transformers` instead of providing `--code_dir` |
+| `--repo_description_path` | str | If you have a README file or a file with a description of the codebase you are using, you can provide the path to this file here. You may use this file to point out the libraries high-level purpose and structure of the codebase (e.g. highlight important directories, files, classes or functions) |
+| `--force_reindex` | bool | Set this flag if you want to force CodeNav to reindex the codebase. Otherwise, CodeNav will reuse an existing index if it exists or create one if it doesn't |
+| `--playground_dir` | str | The path specified here will work as the current directory for CodeNav's execution environment |
+| `--query` | str | The query you want CodeNav to solve using the codebase |
+| `--query_file` | str | If your query is long, you may want to save it to a txt file and provide the path to the text file here |
+| `--max_steps` | int | The maximum number of interactions to allow between CodeNav agent and environments |
+
+
 ### CodeNav as a library
 
 If you'd like to use CodeNav programmatically, you can do so by importing the `codenav` module and using the various
@@ -98,6 +112,7 @@ under the [codenav_examples](codenav_examples) directory:
 - [create_episode.py](codenav_examples%2Fcreate_episode.py): Creates an `OpenAICodeNavAgent` agent and then uses it to generate a solution for the query `"Find the DoneEnv and instantiate it"` **on this codebase** (i.e. executes a CodeNav agent on the CodeNav codebase). Be sure to run the `create_index.py` script above to generate the index before running this script.
 - [create_code_env.py](codenav_examples%2Fcreate_code_env.py)): Creates a `PythonCodeEnv` object and then executes a given code string in this environemnt
 - [create_prompt.py](codenav_examples%2Fcreate_prompt.py): Creates a custom prompt and instantiates and CodeNav agent with that prompt.
+- [parallel_evaluation.py](codenav_examples%2Fparallel_evaluation.py): Demonstrates how to run multiple CodeNav agents in parallel. This is useful for evaluating on a dataset of queries using multiple processes. The EvalSpec abstraction also helps you organize the code a little better!
 
 **Note** - You will still need to launch ElasticSearch server before running any of the above. To do so run
 ```
@@ -111,7 +126,7 @@ and once you run a query on a given codebase, CodeNav will index that codebase e
 This process means there are two things you should keep in mind:
 1. You must manually shut off the Elasticsearch index once you are done with it. You can do this by running `codenav stop`.
 2. If you modify/update the codebase you are asking CodeNav to use the Elasticsearch index will not automatically update and thus CodeNav will be writing code using stale information. In this case, you should add the `--force_reindex` flag when running `codenav query`, this will force CodeNav to reindex the codebase.
-
+3. If you run CodeNav and find that it is unable to search for a file, you may want to make sure the file was indexed correctly. You can inspect all indexed files using Elasticsearch's Kibana interface at `http://localhost:5601/`. To view all the indices index by CodeNav, go to `http://localhost:5601/app/management/data/index_management`. Then click on the index you want to inspect and the click on "Discover Index" on the top-right side of the page. This will show you all the code blocks stored in this index. You can now use the UI to run queries against this index and see if the file your are looking for is present in the index and if it has the correct file path. 
 
 ## Warning ⚠️
 
