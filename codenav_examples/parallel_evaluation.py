@@ -103,7 +103,6 @@ def run_parallel_evaluation(
     logging_kwargs: Str2AnyDict,
     num_processes: int = 2,
 ):
-
     # create an instance of the CodenavEvaluator using the eval spec
     evaluator = CodenavEvaluator(
         eval_spec=CodenavEvalSpec(
