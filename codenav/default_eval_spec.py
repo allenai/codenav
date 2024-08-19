@@ -110,7 +110,6 @@ def run_codenav_on_query(
     es_host: str = DEFAULT_ES_HOST,
     max_steps: int = 20,
 ):
-
     prompt_dirs = [PROMPTS_DIR]
     repo_description = "default/repo_description.txt"
     if repo_description_path is not None:
