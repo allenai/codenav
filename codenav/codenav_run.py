@@ -153,13 +153,6 @@ def main():
         help="A path to a file containing your query (useful for long/detailed queries that are hard to enter on the commandline).",
     )
     parser.add_argument(
-        "--wandb_dir",
-        type=str,
-        default=os.getcwd(),
-        help="Directory into which to save logs. If 'None', logs are written to a temporary"
-        " directory that will be deleted after the run.",
-    )
-    parser.add_argument(
         "--force_reindex",
         action="store_true",
         help="Will delete the existing index (if any) and refresh it.",
@@ -180,9 +173,6 @@ def main():
     )
 
     args = parser.parse_args()
-
-    if args.wandb_dir.strip().lower() == "none":
-        args.wandb_dir = None
 
     if args.command == "init":
         run_init()
