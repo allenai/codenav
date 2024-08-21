@@ -5,10 +5,11 @@
 </div>
 
 [![arXiv](https://img.shields.io/badge/arXiv-2406.12276-red.svg)](https://arxiv.org/abs/2406.12276)
-[![License](https://img.shields.io/badge/License-Apache_2.0-yellow.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Website](https://img.shields.io/badge/website-codenav.allenai.org-yellowgreen.svg)](https://codenav.allenai.org/)
+[![Demo](https://img.shields.io/badge/demo-streamlit-yellow.svg)](https://codenav.streamlit.app/)
+[![License](https://img.shields.io/badge/license-Apache_2.0-cyan.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/release/python-390/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
 
 CodeNav is an LLM agent that navigates and leverages previously unseen code repositories to solve user queries. In contrast to tool-use LLM agents that require "registration" of all relevant tools via manual descriptions within the LLM context, CodeNav automatically indexes and searches over code blocks in the target codebase, finds relevant code snippets, imports them, and uses them to iteratively generate a solution with execution feedback.
 
@@ -154,3 +155,5 @@ This project is licensed under the Apache 2.0 License.
   url={https://arxiv.org/abs/2406.12276}, 
 }
 ```
+
+CodeNav builds along the research direction we started exploring with VisProg (CVPR 2023 Best Paper). For more context please visit [https://github.com/allenai/visprog/blob/main/README.md](https://github.com/allenai/visprog/blob/main/README.md). 
