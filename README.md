@@ -30,14 +30,14 @@ and then
 ```bash
 codenav query \
   --code_dir /PATH/TO/CODEBASE/YOU/WANT/CODENAV/TO/USE \
-  --playground /WORKING/DIRECTORY/FOR/CODENAV/AGENT \
+  --playground_dir /WORKING/DIRECTORY/FOR/CODENAV/AGENT \
   --query "Query you want CodeNav to answer using the above codebase"
 ```
 You can find other command line options by running `codenav --help`. For example, you might run something like
 ```bash
 codenav query \
   --code_dir /PATH/TO/THIS/REPO/codenav \
-  --playground /PATH/TO/THIS/REPO/playground \
+  --playground_dir /PATH/TO/THIS/REPO/playground \
   --query "Write a google-style documentation string for the DoneEnv class and save it to DoneEnv.py"
 ```
 Running the above results in the CodeNav agent saving a file `DoneEnv.py` with contents:
